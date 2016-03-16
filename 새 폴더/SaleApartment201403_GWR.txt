@@ -1,0 +1,84 @@
+   ***********************************************************************
+   *                       Package   GWmodel                             *
+   ***********************************************************************
+   Program starts at: 2016-03-09 14:45:19 
+   Call:
+   gwr.basic(formula = formula1, data = d, bw = bw1, kernel = "bisquare", 
+    adaptive = TRUE, dMat = DM)
+
+   Dependent (y) variable:  PRICE
+   Independent variables:  AGE COMPLEX COMDIST SUBWAY MAJROAD AVEAGE POPDEN BLSPOP INCTAX AREA FLOOR1
+   Number of data points: 2517
+   ***********************************************************************
+   *                    Results of Global Regression                     *
+   ***********************************************************************
+
+Call:
+lm(formula = formula, data = data)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.61302 -0.07123 -0.00611  0.06260  0.61554 
+
+Coefficients:
+             Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  5.842679   0.217055  26.918  < 2e-16 ***
+AGE         -0.140526   0.008974 -15.660  < 2e-16 ***
+COMPLEX      0.087462   0.005159  16.953  < 2e-16 ***
+COMDIST     -0.054180   0.004928 -10.995  < 2e-16 ***
+SUBWAY      -0.075203   0.007214 -10.425  < 2e-16 ***
+MAJROAD     -0.011544   0.007908  -1.460  0.14445    
+AVEAGE      -1.496537   0.127408 -11.746  < 2e-16 ***
+POPDEN      -0.071457   0.009093  -7.858 5.73e-15 ***
+BLSPOP      -0.384956   0.146714  -2.624  0.00875 ** 
+INCTAX       0.097133   0.003532  27.500  < 2e-16 ***
+AREA         0.991446   0.016234  61.073  < 2e-16 ***
+FLOOR1      -0.033896   0.011736  -2.888  0.00391 ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.1121 on 2505 degrees of freedom
+Multiple R-squared:  0.7449,	Adjusted R-squared:  0.7438 
+F-statistic:   665 on 11 and 2505 DF,  p-value: < 2.2e-16
+
+   ***Extra Diagnostic information
+   Residual sum of squares: 31.49005
+   Sigma(hat): 0.1118968
+   AIC:  -3858.421
+   AICc:  -3858.276
+   ***********************************************************************
+   *          Results of Geographically Weighted Regression              *
+   ***********************************************************************
+
+   *********************Model calibration information*********************
+   Kernel function: bisquare 
+   Adaptive bandwidth: 116 (number of nearest neighbours)
+   Regression points: the same locations as observations are used.
+   Distance metric: A distance matrix is specified for this model calibration.
+
+   ****************Summary of GWR coefficient estimates:******************
+                   Min.    1st Qu.     Median    3rd Qu.    Max.
+   Intercept  -7.714000   2.351000   3.820000   4.715000 11.1200
+   AGE        -0.333300  -0.234700  -0.203100  -0.138300  0.1077
+   COMPLEX    -0.001603   0.072250   0.100600   0.125800  0.1903
+   COMDIST    -0.218900  -0.033210  -0.011770   0.014850  0.1038
+   SUBWAY     -0.222200  -0.070590  -0.041550  -0.011780  0.1060
+   MAJROAD    -0.147600  -0.027370  -0.008769   0.007751  0.1435
+   AVEAGE     -4.865000  -1.014000  -0.191700   0.642500  6.7230
+   POPDEN     -0.561800  -0.077980  -0.022490   0.036230  0.5308
+   BLSPOP    -34.750000  -3.288000  -0.864600   0.505200 12.9700
+   INCTAX     -0.325300  -0.007264   0.027380   0.108400  0.4339
+   AREA        0.377000   0.795400   0.853100   0.931400  1.3230
+   FLOOR1     -0.268000  -0.072710  -0.038880  -0.006496  0.1760
+   ************************Diagnostic information*************************
+   Number of data points: 2517 
+   Effective number of parameters (2trace(S) - trace(S'S)): 668.8347 
+   Effective degrees of freedom (n-2trace(S) + trace(S'S)): 1848.165 
+   AICc (GWR book, Fotheringham, et al. 2002, p. 61, eq 2.33): -6591.76 
+   AIC (GWR book, Fotheringham, et al. 2002,GWR p. 96, eq. 4.22): -7420.016 
+   Residual sum of squares: 6.248485 
+   R-square value:  0.9493818 
+   Adjusted R-square value:  0.9310536 
+
+   ***********************************************************************
+   Program stops at: 2016-03-09 14:45:43 
