@@ -6,14 +6,12 @@ Created on Feb 23, 2016
 
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.colors import Normalize
 from images2gif import writeGif
 from PIL import Image
 import os
-import csv
 import pysal
 import scipy.stats as st
-
+import Basemap as bm
     
 def sig4_map1(xCoord, yCoord, sList, tvalue):
     value1 = -abs(tvalue)
@@ -146,7 +144,7 @@ def value6_map1(xCoord, yCoord, sList):
         else:
             oneGroup6.append(0)
     
-    fig = plt.figure(figsize=(5, 5))
+    fig = plt.figure(figsize=(6, 5))
     ax = fig.add_subplot(1,1,1)
     
     
@@ -156,17 +154,28 @@ def value6_map1(xCoord, yCoord, sList):
     legendValue4 = str(round(value4,2))
     legendValue5 = str(round(value5,2))
     
+    rangeList = bm.addBasemap(bm.basemapRange, bm.basemapPolygonList, bm.basemapLineList, bm.basemapPointList, bm.basemapElements, ax)
     
+    ## Setting for ax
+    ax.set_xlim(rangeList[0],rangeList[1])
+    ax.set_ylim(rangeList[2],rangeList[3])
     
-    ax.scatter(xCoord,yCoord, s= oneGroup1, c='#3300CC', edgecolor='none', label = '~' + legendValue1)
-    ax.scatter(xCoord,yCoord, s= oneGroup2, c='#3333FF', edgecolor='none', label = legendValue1 + '~' + legendValue2)
-    ax.scatter(xCoord,yCoord, s= oneGroup3, c='#33CCFF', edgecolor='none', label = legendValue2 + '~' + legendValue3)
+    ax.scatter(0,0, s=0, c='w', label = 'Estimates')
+    if oneGroup1.count(0) != len(oneGroup1):
+        ax.scatter(xCoord,yCoord, s= oneGroup1, c='#3300CC', edgecolor='none', label = 'less than ' + legendValue1)
+    if oneGroup2.count(0) != len(oneGroup2):
+        ax.scatter(xCoord,yCoord, s= oneGroup2, c='#3333FF', edgecolor='none', label = legendValue1 + ' - ' + legendValue2)
+    if oneGroup3.count(0) != len(oneGroup3):
+        ax.scatter(xCoord,yCoord, s= oneGroup3, c='#33CCFF', edgecolor='none', label = legendValue2 + ' - ' + legendValue3)
     
-    ax.scatter(xCoord,yCoord, s= oneGroup4, c='#FFCC00', edgecolor='none', label = legendValue3 + '~' + legendValue4)
-    ax.scatter(xCoord,yCoord, s= oneGroup5, c='#FF6600', edgecolor='none', label = legendValue4 + '~' + legendValue5)
-    ax.scatter(xCoord,yCoord, s= oneGroup6, c='#FF0000', edgecolor='none', label = legendValue5 + '~')
+    if oneGroup4.count(0) != len(oneGroup4):
+        ax.scatter(xCoord,yCoord, s= oneGroup4, c='#FFCC00', edgecolor='none', label = legendValue3 + ' - ' + legendValue4)
+    if oneGroup5.count(0) != len(oneGroup5):
+        ax.scatter(xCoord,yCoord, s= oneGroup5, c='#FF6600', edgecolor='none', label = legendValue4 + ' - ' + legendValue5)
+    if oneGroup6.count(0) != len(oneGroup6):
+        ax.scatter(xCoord,yCoord, s= oneGroup6, c='#FF0000', edgecolor='none', label = 'more than '+legendValue5)
     
-    ax.legend(loc='upper left', ncol=2, fontsize=9, bbox_to_anchor=(-0.15, 0.12), title='estimates', markerscale=3.0, fancybox = True, scatterpoints = 1)
+    ax.legend(loc=3, ncol=1, fontsize=7, bbox_to_anchor=(-0.15,-0.15), markerscale=3.0, fancybox = True, scatterpoints = 1)
     
     return fig, ax
 
@@ -261,22 +270,26 @@ def value6_map2(xCoord, yCoord, sList, rangeValue):
     
     return fig, ax
 
-def map2(xCoord, yCoord, estValues, tValues):
+def map2(xCoord, yCoord, estValues, tValues, correctedT, rangeValue):
+    
+        
+    #correctedT : double determined by year variable
+    #rangeValue : 
     
     valueList = []
 
     for ind, value in enumerate(xCoord):
-        tempArray = [float(value), float(yCoord[ind]), float(estValues[ind]), float(tValues[ind])]
+#         print value
+#         print type(yCoord[ind])
+        tempArray = [float(value[0]), float(yCoord[ind]), float(estValues[ind]), float(tValues[ind])]
         valueList.append(tempArray)
     
-    value1T = -1.96
-    value2T = 1.96
 
 
     newValueList = []
     index = 0 
     for value in valueList:
-        if (value[3] > value2T) or (value[3] < value1T):
+        if abs(value[3]) > abs(correctedT):
             newValueList.append(value)
             index+=1
     
@@ -295,17 +308,8 @@ def map2(xCoord, yCoord, estValues, tValues):
       
     sEst = np.asarray(newEstValues)
     
+    absRange = rangeValue
     
-    s = np.asarray(estValues)
-    
-    maxValue = np.amax(s)
-    minValue = np.amin(s)
-    
-    if abs(maxValue) >= abs(minValue):
-        absRange = abs(maxValue)
-    else:
-        absRange = abs(minValue)
-      
     value1 = -(absRange/3*2)
     value2 = -(absRange/3)
     value3 = 0
@@ -382,17 +386,18 @@ def map2(xCoord, yCoord, estValues, tValues):
     ax.scatter(newxCoord,newyCoord, s= oneGroup5Est, c='#FF6600', edgecolor='none', label = legendValue4 + '~' + legendValue5)
     ax.scatter(newxCoord,newyCoord, s= oneGroup6Est, c='#FF0000', edgecolor='none', label = legendValue5 + '~')
       
-    ax.legend(loc='upper left', numpoints=6, ncol=3, fontsize=9, bbox_to_anchor=(0, 0))
+    ax.legend(loc='upper left', ncol=2, fontsize=9, bbox_to_anchor=(-0.15, 0.12), title='estimates', markerscale=3.0, fancybox = True, scatterpoints = 1)
       
-    return fig, ax
+    return fig, ax    
+
 
 if __name__ == '__main__':
-    
+
     filename1 = "SaleApartment"
     filename2 = "03_GWR.dbf"
     
-    executeImage = 0    # 0: do not execute / 1: execute only t-value part / 2: execute only estimate part / 2.5: execute only estimate part (fixed range) / 3: execute all
-    executeGIF = 2.5      # 0: do not execute / 1: execute only t-value part / 2: execute only estimate part / 2.5: execute only estimate part (fixed range) / 3: execute all
+    executeImage = 2    # 0: do not execute / 1: execute only t-value part / 2: execute only estimate part / 2.5: execute only estimate part (fixed range) / 3: execute estimate part significant
+    executeGIF = 0      # 0: do not execute / 1: execute only t-value part / 2: execute only estimate part / 2.5: execute only estimate part (fixed range) / 3: execute estimate part significant
         
     year = 2006
     
@@ -400,9 +405,11 @@ if __name__ == '__main__':
      
     alpha = 0.05
     
+    
+    
     # 2006        2007        2008        2009       2010        2011        2012       2013        2014        2015
     # 566.8244    485.6843    629.6769    428.059    491.9345    557.4785    359.712    304.6463    297.4755    389.2181
-    effectParaDict = {'2006' : 566.8244, '2007': 485.6843, '2008': 629.6769, '2009': 428.059, '2010': 491.9345, '2011': 557.4785, '2012': 359.712, '2013': 304.6463, '2014': 297.4755, '2015': 389.2181}
+    effectParaDict = {'2006' : 566.8244, '2007': 485.6843, '2008': 629.6769, '2009': 428.059, '2010': 491.9345, '2011': 557.4785, '2012': 359.712, '2013': 304.6463, '2014': 668.8347, '2015': 762.3142}
     effectPara = effectParaDict[str(year)]
     
     pValue = alpha/(effectPara/noVar)
@@ -432,7 +439,7 @@ if __name__ == '__main__':
             valueList.append(values)
           
           
-        if (executeImage//1) != 2.0:    
+        if (executeImage//1) < 2.0:    
               
             ### Creating t-value maps
                   
@@ -441,15 +448,15 @@ if __name__ == '__main__':
                             
                     xCoordList = []
                     yCoordList = []
-                    attrList = []
+                    attrListT = []
                             
                     for row in valueList: # do not change valueList[] because [] is nth row
                         xCoordList.append(row[-2:-1])    # importing x (the second from the last)
                         yCoordList.append(row[-1])      # importing y (the last)
-                        attrList.append(float(row[indx+noVar]))   #importing t-values of a field            
+                        attrListT.append(float(row[indx+noVar]))   #importing t-values of a field            
                              
                         
-                    fig, ax = sig4_map1(xCoordList, yCoordList, attrList, tValue)
+                    fig, ax = sig4_map1(xCoordList, yCoordList, attrListT, tValue)
                                  
                     ax.set_xlabel(coordListName[0])
                     ax.set_ylabel(coordListName[1])
@@ -458,6 +465,7 @@ if __name__ == '__main__':
                     #change path 
                     ax.set_title(name+"_"+str(year))
                     fig.savefig("t_values/"+filename1+str(year)+"_"+name+".png")
+                    
                     print("save a t-value map successfully")
                     
                     
@@ -471,15 +479,16 @@ if __name__ == '__main__':
                      
                 xCoordList = []
                 yCoordList = []
-                attrList = []
+                attrListEst = []
+                attrListT = []
                           
                 for row in valueList: # do not change valueList[] because [] is nth row
                     xCoordList.append(row[-2:-1])    # importing x (the second from the last)
                     yCoordList.append(row[-1])      # importing y (the last)
-                    attrList.append(float(row[indx]))   #importing estimates of a field            
+                    attrListEst.append(float(row[indx]))   #importing estimates of a field      
+                    attrListT.append(float(row[indx+noVar]))   #importing t-values of a field      
                  
-                if executeImage == 2.5:
-                    def getRangeValue(filename1, filename2, index):
+                def getRangeValue(filename1, filename2, indx):
                         repValueList =[]
                         i = 0
                         while i<10:
@@ -506,11 +515,13 @@ if __name__ == '__main__':
                         finalRangeValue = np.mean(repValueArray)
                         
                         return round(finalRangeValue,2)
-                                
-                    rangeValue = getRangeValue(filename1, filename2, indx)
-#                     print('rangeValue='+str(rangeValue))
+                rangeValue = getRangeValue(filename1, filename2, indx)
+#                 print('rangeValue='+str(rangeValue))
+                
+                     
+                if executeImage == 2.5:
                     
-                    fig, ax = value6_map2(xCoordList, yCoordList, attrList, rangeValue)
+                    fig, ax = value6_map2(xCoordList, yCoordList, attrListEst, rangeValue)
                     
                     ax.set_xlabel(coordListName[0])
                     ax.set_ylabel(coordListName[1])
@@ -520,9 +531,31 @@ if __name__ == '__main__':
                     ax.set_title(name+"_"+str(year))
                     fig.savefig("est_values1/"+filename1+str(year)+"_"+name+".png")
                     print("save an estimates map successfully")
+                    
+                elif executeImage==3 :
+                    
+                    fig, ax = map2(xCoordList, yCoordList, attrListEst, attrListT, tValue, rangeValue)
+                    
+                    
+                    ax.set_xlabel(coordListName[0])
+                    ax.set_ylabel(coordListName[1])
+                    ax.axis('off')
+                                 
+                    #change path 
+                    ax.set_title(name+"_"+str(year))
+                    fig.savefig("est_values2/"+filename1+str(year)+"_"+name+".png")
+                    print("save an map of estimates significant successfully")
+                    
+                    
                               
                 else:
-                    fig, ax = value6_map1(xCoordList, yCoordList, attrList)
+                    
+                    fig, ax = value6_map1(xCoordList, yCoordList, attrListEst)
+                    
+#                     shpFile = 'shapefiles/Submarket'
+#                     addShpPolygon(shpFile, ax)
+#                     shpFile = 'shapefiles/HanRiverSmo'
+#                     addShpPolygon(shpFile, ax)
                                
                     ax.set_xlabel(coordListName[0])
                     ax.set_ylabel(coordListName[1])
@@ -542,9 +575,11 @@ if __name__ == '__main__':
         filepath2_t = 't_values/'
         filepath2_est = 'est_values/'
         filepath21_est = 'est_values1/'
+        filepath22_est = 'est_values2/'
         filepath3_t = 'gif_t_values/'
         filepath3_est = 'gif_est_values/'
         filepath31_est = 'gif_est_values1/'
+        filepath32_est = 'gif_est_values2/'
          
          
         if executeGIF == 1:
@@ -624,6 +659,34 @@ if __name__ == '__main__':
                 
                      
                 os.chdir(filepath1+filepath31_est)
+                os.getcwd()
+                     
+                gifname = filename1+'_'+fieldname+'.gif'
+                     
+                writeGif(gifname, images, duration=1)
+                print(gifname)    
+                
+        if executeGIF == 3:
+            ### Creating estimates gif file 
+            fileDir = os.path.join(os.path.dirname(__file__), filepath22_est)
+         
+         
+            #change fieldnameList 
+            for fieldname in valueListName[:noVar]:
+                os.chdir(filepath1+filepath22_est)
+                os.getcwd()
+                    
+                images = []    
+                i=0
+                while i<10: # no of years
+                    filename3 = filename1+str(i+2006) # starting year = 2006
+                    i+=1    
+                    filename = filename3+'_'+fieldname+'.png'
+                        
+                    images.append(Image.open(filename))
+                
+                     
+                os.chdir(filepath1+filepath32_est)
                 os.getcwd()
                      
                 gifname = filename1+'_'+fieldname+'.gif'
