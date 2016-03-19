@@ -13,18 +13,18 @@ import numpy as np
 ## Basemap List
 # polygon (path, facecolor, edgecolor, linewidths(double))
 basemapPolygonList = [
-                        ["shapefiles/Submarket", "None", "k", .1],
+                        ["shapefiles/Submarket", "None", "k", .5],
                         ["shapefiles/HanRiverSmo", "#BDDFE9", "None", .1]
                         ]
 
 # point (path, color, size(double), shape, edgecolor, label)
 basemapPointList = [
-                    ["shapefiles/SubwayStation", "k", 6, "x", "k", "Subway stations" ]
+                    ["shapefiles/SubwayStation", "k", 10, "x", "k", "Subway stations" ]
                     ]
-
+ 
 # line (paht, color, linewidth, label)
 basemapLineList = [
-                   ["shapefiles/SubwaySmo", "#7B8082", .5, None]
+                    ["shapefiles/SubwaySmo", "#7B8082", .5, None]
                    ]
 
 # map elements
@@ -116,14 +116,16 @@ def addShpLine(shpFile, shpSchem, ax):
 def addBasemap(basemapRange, basemapPolygonList, basemapLineList, basemapPointList, basemapElements, ax):
     rangeList = [-1, -1, -1, -1]
     
-    if len(basemapPolygonList) > 0:
-        rangeList = findRange(basemapRange[0])
-        for basemap in basemapPolygonList:
-            addShpPolygon(basemap[0], basemap[1:], ax)
+    
     
     if len(basemapLineList) > 0:
         for basemap in basemapLineList:
             addShpLine(basemap[0], basemap[1:], ax)
+            
+    if len(basemapPolygonList) > 0:
+        rangeList = findRange(basemapRange[0])
+        for basemap in basemapPolygonList:
+            addShpPolygon(basemap[0], basemap[1:], ax) 
             
     if len(basemapPointList) > 0:
         for basemap in basemapPointList:
