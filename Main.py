@@ -505,111 +505,111 @@ def legendOnly(xCoord, yCoord, attrListEst, rangeValue):
     return fig, ax
 
 if __name__ == '__main__':
-    
+
     index = 0
     while index < 10:
         filename1 = "SaleApartment"
         filename2 = "03_GWR.dbf"
-        
+         
         executeImage = 3    # 0: do not execute / 1: execute only t-value part / 2: execute only estimate part / 2.5: execute only estimate part (fixed range) / 3: execute estimate part significant / 4: execute only legend
         executeGIF = 0      # 0: do not execute / 1: execute only t-value part / 2: execute only estimate part / 2.5: execute only estimate part (fixed range) / 3: execute estimate part significant
-            
+             
         year = 2006+index
-        
-        noVar = 12 # number of variables including intercept
          
+        noVar = 12 # number of variables including intercept
+          
         alpha = 0.05
-        
-        
-        
+         
+         
+         
         # 2006        2007        2008        2009       2010        2011        2012       2013        2014        2015
         # 566.8244    485.6843    629.6769    428.059    491.9345    557.4785    359.712    304.6463    297.4755    389.2181
         effectParaDict = {'2006' : 566.8244, '2007': 485.6843, '2008': 629.6769, '2009': 428.059, '2010': 491.9345, '2011': 557.4785, '2012': 359.712, '2013': 304.6463, '2014': 668.8347, '2015': 762.3142}
         effectPara = effectParaDict[str(year)]
-        
+         
         pValue = alpha/(effectPara/noVar)
         tValue = round(abs(st.norm.ppf(pValue/2)),2)
-         
+          
         range1=noVar # no of estimate parameters
         range2=5+(noVar)*2 # 5 - other parameters in GWR result
-          
+           
         ## open dbf
         data = pysal.open(filename1+str(year)+filename2)
-          
+           
         ## importing name of fields
         coordListName = data.header[-2:] # x, y coordinate
-          
+           
         estListName = data.header[:range1] # estimates
         tvalListName = data.header[range2:-2] # t-value
-          
+           
         valueListName = estListName+tvalListName # estimate[:noVar]+t-value[noVar:]
-        
-              
+         
+               
         if executeImage > 0 :
-                  
+                   
             valueList = []
             ## importing values of estimates and t-value
             for row in data :
                 values = row[:range1]+row[range2:-2] + row[-2:]
                 valueList.append(values)
-              
-              
+               
+               
             if (executeImage//1) < 2.0:    
-                  
+                   
                 ### Creating t-value maps
-                      
+                       
                     ## importing values of each field from valueList
                     for indx, name in enumerate(valueListName[noVar:]): # switching field among t-values
-                                
+                                 
                         xCoordList = []
                         yCoordList = []
                         attrListT = []
-                                
+                                 
                         for row in valueList: # do not change valueList[] because [] is nth row
                             xCoordList.append(row[-2:-1])    # importing x (the second from the last)
                             yCoordList.append(row[-1])      # importing y (the last)
                             attrListT.append(float(row[indx+noVar]))   #importing t-values of a field            
-                                 
-                            
+                                  
+                             
                         fig, ax = sig4_map1(xCoordList, yCoordList, attrListT, tValue)
-                                     
+                                      
                         ax.set_xlabel(coordListName[0])
                         ax.set_ylabel(coordListName[1])
                         ax.axis('off')
-                                  
+                                   
                         #change path 
                         ax.set_title(name+"_"+str(year))
                         fig.savefig("t_values/"+filename1+str(year)+"_"+name+".png")
-                        
+                         
                         print("save a t-value map successfully")
-                        
-                        
+                         
+                         
             if executeImage != 1:
-                
-       
+                 
+        
                 ### Creating estimate maps
-                     
+                      
                 ## importing values of each field from valueList
                 for indx, name in enumerate(valueListName[:noVar]): # switching field among estimates
-                         
+                          
                     xCoordList = []
                     yCoordList = []
                     attrListEst = []
                     attrListT = []
-                              
+                               
                     for row in valueList: # do not change valueList[] because [] is nth row
                         xCoordList.append(row[-2:-1])    # importing x (the second from the last)
                         yCoordList.append(row[-1])      # importing y (the last)
                         attrListEst.append(float(row[indx]))   #importing estimates of a field      
                         attrListT.append(float(row[indx+noVar]))   #importing t-values of a field      
-                     
+                      
                     def getRangeValue(filename1, filename2, indx):
                             repValueList =[]
                             i = 0
                             while i<10:
                                 ## open dbf
                                 data = pysal.open(filename1+str(i+2006)+filename2) # starting year - 2006
-                                
+                                 
                                 valueList = []
                                 for row in data:
                                     value = row[indx]
@@ -617,95 +617,95 @@ if __name__ == '__main__':
                                     valueArray = np.asarray(valueList)
                                     maxValue = np.amax(valueArray)
                                     minValue = np.amin(valueArray)
-                                    
+                                     
                                     if abs(maxValue) > abs(minValue):
                                         repValue = abs(maxValue)
                                     else:
                                         repValue = abs(minValue)
-                                
+                                 
                                 repValueList.append(repValue)
                                 i+=1
-                                
+                                 
                             repValueArray = np.asarray(repValueList)
                             finalRangeValue = np.mean(repValueArray)
-                            
+                             
                             return round(finalRangeValue,2)
                     rangeValue = getRangeValue(filename1, filename2, indx)
     #                 print('rangeValue='+str(rangeValue))
-                    
-                         
+                     
+                          
                     if executeImage == 2.5:
-                        
+                         
                         fig, ax = value6_map2(xCoordList, yCoordList, attrListEst, rangeValue)
-                        
+                         
                         ax.set_xlabel(coordListName[0])
                         ax.set_ylabel(coordListName[1])
                         ax.axis('off')
-                                     
+                                      
                         #change path 
                         ax.set_title(name+"_"+str(year))
                         fig.savefig("est_values1/"+filename1+str(year)+"_"+name+".png")
                         print("save an estimates map successfully")
-                        
+                         
                     elif executeImage==3 :
-                        
+                         
                         fig, ax = map2(xCoordList, yCoordList, attrListEst, attrListT, tValue, rangeValue)
-                        
-                        
+                         
+                         
                         ax.set_xlabel(coordListName[0])
                         ax.set_ylabel(coordListName[1])
                         ax.axis('off')
-                                     
-                        
+                                      
+                         
     #                     ax.set_title(name+"_"+str(year))
-                        
+                         
                         fontdict = {'fontsize': 30,
                                     'fontweight' : 'bold',
                                     'verticalalignment': 'baseline',
                                     'horizontalalignment': 'center'}
-                        
+                         
                         ax.set_title(str(year), fontdict = fontdict)
-                        
+                         
                         #change path 
                         fig.savefig("est_values2/"+filename1+str(year)+"_"+name+".png")
                         print("save an map of estimates significant successfully")
-                        
+                         
                     elif executeImage == 4:
                         xCoordList = [0,0,0,0,0,0]
                         yCoordList = [0,1,2,3,4,5]
                         attrListEst = [-rangeValue, -(1.5/3)*rangeValue, -(0.5/3)*rangeValue, (0.5/3)*rangeValue, (1.5/3)*rangeValue, rangeValue]
-                        
+                         
                         fig ,ax = legendOnly(xCoordList, yCoordList, attrListEst, rangeValue)
-                        
+                         
                         ax.axis('off')
-                        
+                         
                         #change path 
                         fig.savefig("legend/"+filename1+str(year)+"_"+name+".png")
                         print("save a legend successfully")
-                                  
+                                   
                     else:
-                        
+                         
                         fig, ax = value6_map1(xCoordList, yCoordList, attrListEst)
-                        
+                         
     #                     shpFile = 'shapefiles/Submarket'
     #                     addShpPolygon(shpFile, ax)
     #                     shpFile = 'shapefiles/HanRiverSmo'
     #                     addShpPolygon(shpFile, ax)
-                                   
+                                    
                         ax.set_xlabel(coordListName[0])
                         ax.set_ylabel(coordListName[1])
                         ax.axis('off')
-                                     
+                                      
                         #change path 
                         ax.set_title(name+"_"+str(year))
                         fig.savefig("est_values/"+filename1+str(year)+"_"+name+".png")
                         print("save an estimates map successfully")
-     
-     
+      
+      
         if executeGIF > 0 :
-             
+              
             ### GIF generator
-               
+                
             filepath1 = 'E:/Programming/Eclipse/KoreaHousingVis/'
             filepath2_t = 't_values/'
             filepath2_est = 'est_values/'
@@ -715,117 +715,117 @@ if __name__ == '__main__':
             filepath3_est = 'gif_est_values/'
             filepath31_est = 'gif_est_values1/'
             filepath32_est = 'gif_est_values2/'
-             
-             
+              
+              
             if executeGIF == 1:
                 ### Creating t-value gif file 
                 fileDir = os.path.join(os.path.dirname(__file__), filepath2_t)
-                  
+                   
                 # iteration of t-value columns 
                 for fieldname in valueListName[noVar:]:  
                     os.chdir(filepath1+filepath2_t)
                     os.getcwd()
-                        
+                         
                     images = []    
                     i=0
                     while i<10: # no of years
                         filename3 = filename1+str(i+2006) # starting year = 2006
                         i+=1    
                         filename = filename3+'_'+fieldname+'.png'
-                            
+                             
                         images.append(Image.open(filename))
-                    
-                         
+                     
+                          
                     os.chdir(filepath1+filepath3_t)
                     os.getcwd()
-                         
+                          
                     gifname = filename1+'_'+fieldname+'.gif'
-                         
+                          
                     writeGif(gifname, images, duration=1)
                     print(gifname)        
-                 
-             
+                  
+              
             if executeGIF == 2:
                 ### Creating estimates gif file 
                 fileDir = os.path.join(os.path.dirname(__file__), filepath2_est)
-             
-             
+              
+              
                 #change fieldnameList 
                 for fieldname in valueListName[:noVar]:
                     os.chdir(filepath1+filepath2_est)
                     os.getcwd()
-                        
+                         
                     images = []    
                     i=0
                     while i<10: # no of years
                         filename3 = filename1+str(i+2006) # starting year = 2006
                         i+=1    
                         filename = filename3+'_'+fieldname+'.png'
-                            
+                             
                         images.append(Image.open(filename))
-                    
-                         
+                     
+                          
                     os.chdir(filepath1+filepath3_est)
                     os.getcwd()
-                         
+                          
                     gifname = filename1+'_'+fieldname+'.gif'
-                         
+                          
                     writeGif(gifname, images, duration=1)
                     print(gifname)
-                    
+                     
             if executeGIF == 2.5:
                 ### Creating estimates gif file 
                 fileDir = os.path.join(os.path.dirname(__file__), filepath21_est)
-             
-             
+              
+              
                 #change fieldnameList 
                 for fieldname in valueListName[:noVar]:
                     os.chdir(filepath1+filepath21_est)
                     os.getcwd()
-                        
+                         
                     images = []    
                     i=0
                     while i<10: # no of years
                         filename3 = filename1+str(i+2006) # starting year = 2006
                         i+=1    
                         filename = filename3+'_'+fieldname+'.png'
-                            
+                             
                         images.append(Image.open(filename))
-                    
-                         
+                     
+                          
                     os.chdir(filepath1+filepath31_est)
                     os.getcwd()
-                         
+                          
                     gifname = filename1+'_'+fieldname+'.gif'
-                         
+                          
                     writeGif(gifname, images, duration=1)
                     print(gifname)    
-                    
+                     
             if executeGIF == 3:
                 ### Creating estimates gif file 
                 fileDir = os.path.join(os.path.dirname(__file__), filepath22_est)
-             
-             
+              
+              
                 #change fieldnameList 
                 for fieldname in valueListName[:noVar]:
                     os.chdir(filepath1+filepath22_est)
                     os.getcwd()
-                        
+                         
                     images = []    
                     i=0
                     while i<10: # no of years
                         filename3 = filename1+str(i+2006) # starting year = 2006
                         i+=1    
                         filename = filename3+'_'+fieldname+'.png'
-                            
+                             
                         images.append(Image.open(filename))
-                    
-                         
+                     
+                          
                     os.chdir(filepath1+filepath32_est)
                     os.getcwd()
-                         
+                          
                     gifname = filename1+'_'+fieldname+'.gif'
-                         
+                          
                     writeGif(gifname, images, duration=1)
                     print(gifname)    
         index+=1
