@@ -507,16 +507,22 @@ def legendOnly(xCoord, yCoord, attrListEst, rangeValue):
 if __name__ == '__main__':
 
     index = 0
-    while index < 10:
+    while index < 9:
         filename1 = "SaleApartment"
         filename2 = "03_GWR.dbf"
+        filename2_lag = "03LAG_GWR.dbf"
+        filename2 = filename2_lag
          
-        executeImage = 3    # 0: do not execute / 1: execute only t-value part / 2: execute only estimate part / 2.5: execute only estimate part (fixed range) / 3: execute estimate part significant / 4: execute only legend
-        executeGIF = 0      # 0: do not execute / 1: execute only t-value part / 2: execute only estimate part / 2.5: execute only estimate part (fixed range) / 3: execute estimate part significant
+        executeImage = 0    # 0: do not execute / 1: execute only t-value part / 2: execute only estimate part / 2.5: execute only estimate part (fixed range) / 3: execute estimate part significant / 4: execute only legend
+        executeGIF = 3      # 0: do not execute / 1: execute only t-value part / 2: execute only estimate part / 2.5: execute only estimate part (fixed range) / 3: execute estimate part significant
              
         year = 2006+index
+        year_lag = 2007+index
+        year = year_lag
          
         noVar = 12 # number of variables including intercept
+        noVar_lag = 13
+        noVar = noVar_lag
           
         alpha = 0.05
          
@@ -525,6 +531,9 @@ if __name__ == '__main__':
         # 2006        2007        2008        2009       2010        2011        2012       2013        2014        2015
         # 566.8244    485.6843    629.6769    428.059    491.9345    557.4785    359.712    304.6463    297.4755    389.2181
         effectParaDict = {'2006' : 566.8244, '2007': 485.6843, '2008': 629.6769, '2009': 428.059, '2010': 491.9345, '2011': 557.4785, '2012': 359.712, '2013': 304.6463, '2014': 668.8347, '2015': 762.3142}
+        effectParaDict_lag = {'2007': 380.4266, '2008': 466.3113, '2009': 276.951, '2010': 228.1931, '2011': 453.0001, '2012': 266.8246, '2013': 325.0223, '2014': 317.4129, '2015': 260.5769}
+        effectParaDict = effectParaDict_lag
+        
         effectPara = effectParaDict[str(year)]
          
         pValue = alpha/(effectPara/noVar)
@@ -606,9 +615,12 @@ if __name__ == '__main__':
                     def getRangeValue(filename1, filename2, indx):
                             repValueList =[]
                             i = 0
-                            while i<10:
+#                             while i<10:
+                            while i<9:
                                 ## open dbf
-                                data = pysal.open(filename1+str(i+2006)+filename2) # starting year - 2006
+#                                 data = pysal.open(filename1+str(i+2006)+filename2) # starting year - 2006
+                                data = pysal.open(filename1+str(i+2007)+filename2) # starting year - 2007
+                                
                                  
                                 valueList = []
                                 for row in data:
@@ -667,7 +679,7 @@ if __name__ == '__main__':
                         ax.set_title(str(year), fontdict = fontdict)
                          
                         #change path 
-                        fig.savefig("est_values2/"+filename1+str(year)+"_"+name+".png")
+                        fig.savefig("est_values3/"+filename1+str(year)+"_"+name+".png")
                         print("save an map of estimates significant successfully")
                          
                     elif executeImage == 4:
@@ -706,15 +718,18 @@ if __name__ == '__main__':
               
             ### GIF generator
                 
-            filepath1 = 'E:/Programming/Eclipse/KoreaHousingVis/'
+#             filepath1 = 'E:/Programming/Eclipse/KoreaHousingVis/'
+            filepath1 = 'D:/Programming/Project/git/KoreaHousingVis/'
             filepath2_t = 't_values/'
             filepath2_est = 'est_values/'
             filepath21_est = 'est_values1/'
             filepath22_est = 'est_values2/'
+            filepath23_est = 'est_values3/'
             filepath3_t = 'gif_t_values/'
             filepath3_est = 'gif_est_values/'
             filepath31_est = 'gif_est_values1/'
             filepath32_est = 'gif_est_values2/'
+            filepath33_est = 'gif_est_values3/'
               
               
             if executeGIF == 1:
@@ -729,6 +744,7 @@ if __name__ == '__main__':
                     images = []    
                     i=0
                     while i<10: # no of years
+                        
                         filename3 = filename1+str(i+2006) # starting year = 2006
                         i+=1    
                         filename = filename3+'_'+fieldname+'.png'
@@ -803,25 +819,25 @@ if __name__ == '__main__':
                      
             if executeGIF == 3:
                 ### Creating estimates gif file 
-                fileDir = os.path.join(os.path.dirname(__file__), filepath22_est)
+                fileDir = os.path.join(os.path.dirname(__file__), filepath23_est)
               
               
                 #change fieldnameList 
                 for fieldname in valueListName[:noVar]:
-                    os.chdir(filepath1+filepath22_est)
+                    os.chdir(filepath1+filepath23_est)
                     os.getcwd()
                          
                     images = []    
                     i=0
-                    while i<10: # no of years
-                        filename3 = filename1+str(i+2006) # starting year = 2006
+                    while i<9: # no of years
+                        filename3 = filename1+str(i+2007) # starting year = 2007
                         i+=1    
                         filename = filename3+'_'+fieldname+'.png'
                              
                         images.append(Image.open(filename))
                      
                           
-                    os.chdir(filepath1+filepath32_est)
+                    os.chdir(filepath1+filepath33_est)
                     os.getcwd()
                           
                     gifname = filename1+'_'+fieldname+'.gif'
